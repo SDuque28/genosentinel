@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.4.7
+    container_name: genosentinel-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_DATABASE: genosentinel
+      MYSQL_USER: genosentinel_user
+      MYSQL_PASSWORD_FILE: /run/secrets/db_user_password
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    secrets:
+      - db_root_password
+      - db_user_password
+    networks:
+      - genosentinel-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "genosentinel_user", "-p$$(cat /run/secrets/db_user_password)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+secrets:
+  db_root_password:
+    file: ./secrets/db_root_password.txt
+  db_user_password:
+    file: ./secrets/db_user_password.txt
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  genosentinel-network:
+    driver: bridge
