@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-gateway-simple
+  namespace: genosentinel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-gateway-simple
+  template:
+    metadata:
+      labels:
+        app: auth-gateway-simple
+    spec:
+      containers:
+      - name: auth-gateway-simple
+        image: genosentinel/auth-gateway:1.0.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3003
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql-service:3306/genosentinel"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "genosentinel_user"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "abcd1234"
+        - name: SERVER_PORT
+          value: "3003"
+        - name: SERVER_SERVLET_CONTEXT_PATH
+          value: "/genosentinel"
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: "none"
+        - name: SPRING_JPA_SHOW_SQL
+          value: "true"
+        - name: SPRING_JPA_PROPERTIES_HIBERNATE_QUERY_VALIDATION_MODE
+          value: "none"
+        - name: LOGGING_LEVEL_ORG_HIBERNATE
+          value: "DEBUG"
+        - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_DATA_JPA
+          value: "DEBUG"
