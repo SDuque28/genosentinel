@@ -87,13 +87,6 @@ public class AuthController {
                     "Username already exists");
         }
 
-        // Valida que no exista el email
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Email already exists");
-        }
-
         // Crea el nuevo usuario
         User user = new User();
         user.setUsername(request.getUsername());
