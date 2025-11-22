@@ -27,5 +27,5 @@ CREATE TABLE clinical_records (
   treatment_protocol  VARCHAR(255),
   PRIMARY KEY (id),
   CONSTRAINT fk_clinical_tumor FOREIGN KEY (tumor_type_id) REFERENCES tumor_types(id),
-   CONSTRAINT fk_patienr FOREIGN KEY (patient_id) REFERENCES patients(id)
+  CONSTRAINT fk_patienr FOREIGN KEY (patient_id) REFERENCES patients(id)
 );
