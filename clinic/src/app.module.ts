@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PatientsModule } from './patients/patients.module';
+import { TumorTypesModule } from './tumor-types/tumor-types.module';
+import { ClinicalRecordsModule } from './clinical-records/clinical-records.module';
 
 @Module({
   imports: [
@@ -18,6 +20,10 @@ import { PatientsModule } from './patients/patients.module';
     }),
 
     PatientsModule,
+
+    TumorTypesModule,
+
+    ClinicalRecordsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
