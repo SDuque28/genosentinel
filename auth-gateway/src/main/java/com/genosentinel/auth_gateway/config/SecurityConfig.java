@@ -63,7 +63,13 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos
-                        .requestMatchers("/auth/login", "/auth/register", "/health","/error").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register", "/health", "/error").permitAll()
+                        // Swagger UI y OpenAPI endpoints
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
                         // Todos los demás requieren autenticación
                         .anyRequest().authenticated()
                 )
