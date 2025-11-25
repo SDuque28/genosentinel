@@ -1,50 +1,89 @@
-    import { Injectable, NotFoundException } from '@nestjs/common';
-    import { InjectRepository } from '@nestjs/typeorm';
-    import { Repository } from 'typeorm';
-    import { Patient, PatientStatus } from './entities/patient.entity';
-    import { CreatePatientDto } from './dto/create-patient.dto';
-    import { UpdatePatientDto } from './dto/update-patient.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Patient } from './entities/patient.entity';
+import { PatientStatus } from './enums/patient.enum';
+import { CreatePatientDto } from './dto/create-patient.dto';
+import { UpdatePatientDto } from './dto/update-patient.dto';
 
-    @Injectable()
-    export class PatientsService {
-    constructor(
-        @InjectRepository(Patient)
-        private readonly patientRepo: Repository<Patient>,
-    ) {}
+@Injectable()
+export class PatientsService {
+  constructor(
+    @InjectRepository(Patient)
+    private readonly patientRepo: Repository<Patient>,
+  ) {}
 
-    async create(dto: CreatePatientDto) {
-        const patient = this.patientRepo.create({
+  /**
+   * Crea un nuevo paciente
+   */
+  async create(dto: CreatePatientDto): Promise<Patient> {
+    try {
+      const patient = this.patientRepo.create({
         ...dto,
-        status: dto.status ?? 'Activo', // por si no lo mandan
-        });
-        return this.patientRepo.save(patient);
+        status: dto.status ?? PatientStatus.ACTIVE,
+      });
+      return await this.patientRepo.save(patient);
+    } catch (error) {
+      console.log(`Error al crear el paciente: ${error}`);
+      throw new BadRequestException('Error al crear el paciente');
+    }
+  }
+
+  /**
+   * Obtiene todos los pacientes
+   */
+  async findAll(): Promise<Patient[]> {
+    return this.patientRepo.find({
+      order: { id: 'ASC' },
+    });
+  }
+
+  /**
+   * Busca un paciente por ID
+   */
+  async findOne(id: number): Promise<Patient> {
+    const patient = await this.patientRepo.findOne({ where: { id } });
+
+    if (!patient) {
+      throw new NotFoundException(`Paciente con id ${id} no encontrado`);
     }
 
-    findAll() {
-        return this.patientRepo.find();
-    }
+    return patient;
+  }
 
-    async findOne(id: number) {
-        const patient = await this.patientRepo.findOne({ where: { id } });
-        if (!patient) {
-        throw new NotFoundException(`Paciente con id ${id} no encontrado`);
-        }
-        return patient;
-    }
+  /**
+   * Actualiza un paciente existente
+   */
+  async update(id: number, dto: UpdatePatientDto): Promise<Patient> {
+    const patient = await this.findOne(id);
 
-    async update(id: number, dto: UpdatePatientDto) {
-        const patient = await this.findOne(id);
-        Object.assign(patient, dto);
-        return this.patientRepo.save(patient);
-    }
+    Object.assign(patient, dto);
 
-    async changeStatus(id: number, status: PatientStatus) {
-        const patient = await this.findOne(id);
-        patient.status = status;
-        return this.patientRepo.save(patient);
+    try {
+      return await this.patientRepo.save(patient);
+    } catch (error) {
+      console.log(`Error al actualizar el paciente: ${error}`);
+      throw new BadRequestException('Error al actualizar el paciente');
     }
+  }
 
-    async deactivate(id: number) {
-        return this.changeStatus(id, 'Desactivado');
-    }
-    }
+  /**
+   * Cambia el estado de un paciente
+   */
+  async changeStatus(id: number, status: PatientStatus): Promise<Patient> {
+    const patient = await this.findOne(id);
+    patient.status = status;
+    return this.patientRepo.save(patient);
+  }
+
+  /**
+   * Desactiva un paciente (soft delete)
+   */
+  async deactivate(id: number): Promise<Patient> {
+    return this.changeStatus(id, PatientStatus.DEACTIVATED);
+  }
+}

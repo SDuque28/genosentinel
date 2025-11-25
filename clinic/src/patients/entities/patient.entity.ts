@@ -1,32 +1,36 @@
-    import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Gender, PatientStatus } from '../enums/patient.enum';
 
-    export type Gender = 'M' | 'F';
-    export type PatientStatus = 'Activo' | 'Seguimiento' | 'Desactivado';
+@Entity('patients')
+export class Patient {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Entity('patients')
-    export class Patient {
-    @PrimaryGeneratedColumn()
-    id: number; // INT AUTO_INCREMENT
+  @Column({ name: 'first_name', length: 100 })
+  firstName: string;
 
-    @Column({ name: 'first_name', length: 100 })
-    firstName: string;
+  @Column({ name: 'last_name', length: 100 })
+  lastName: string;
 
-    @Column({ name: 'last_name', length: 100 })
-    lastName: string;
+  @Column({ name: 'birth_date', type: 'date' })
+  birthDate: string;
 
-    @Column({ name: 'birth_date', type: 'date' })
-    birthDate: string; // o Date si prefieres
+  @Column({
+    type: 'enum',
+    enum: Gender,
+  })
+  gender: Gender;
 
-    @Column({
-        type: 'enum',
-        enum: ['M', 'F'],
-    })
-    gender: Gender;
-
-    @Column({
-        type: 'enum',
-        enum: ['Activo', 'Seguimiento', 'Desactivado'],
-        default: 'Activo',
-    })
-    status: PatientStatus;
-    }
+  @Column({
+    type: 'enum',
+    enum: PatientStatus,
+    default: PatientStatus.ACTIVE,
+  })
+  status: PatientStatus;
+}

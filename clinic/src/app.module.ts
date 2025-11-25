@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { PatientsModule } from './patients/patients.module';
 import { TumorTypesModule } from './tumor-types/tumor-types.module';
 import { ClinicalRecordsModule } from './clinical-records/clinical-records.module';
@@ -10,13 +8,13 @@ import { ClinicalRecordsModule } from './clinical-records/clinical-records.modul
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',     
+      host: 'localhost',
       port: 3306,
       username: 'clinic_user',
-      password: 'abcd1234', 
+      password: 'abcd1234',
       database: 'clinic_db',
-      autoLoadEntities: true, 
-      synchronize: false,      
+      autoLoadEntities: true,
+      synchronize: false,
     }),
 
     PatientsModule,
@@ -25,7 +23,5 @@ import { ClinicalRecordsModule } from './clinical-records/clinical-records.modul
 
     ClinicalRecordsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

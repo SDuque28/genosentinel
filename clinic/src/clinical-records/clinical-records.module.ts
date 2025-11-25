@@ -7,13 +7,7 @@ import { Patient } from '../patients/entities/patient.entity';
 import { TumorType } from '../tumor-types/entities/tumor-type.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ClinicalRecord, 
-      Patient,
-      TumorType,
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([ClinicalRecord, Patient, TumorType])],
   controllers: [ClinicalRecordsController],
   providers: [ClinicalRecordsService],
 })

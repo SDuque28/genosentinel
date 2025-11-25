@@ -1,22 +1,34 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { setupSwagger } from './config/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // ✅ Configuración de Swagger
-  const config = new DocumentBuilder()
-    .setTitle('GenoSentinel - Microservicio Clínica')
-    .setDescription(
-      'API para gestión de pacientes, tipos de tumor e historias clínicas',
-    )
-    .setVersion('1.0')
-    .build();
+  // Global prefix
+  app.setGlobalPrefix('api');
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document); // ← ruta /api
+  // Validation
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
+
+  // CORS
+  app.enableCors();
+
+  // Swagger setup
+  setupSwagger(app);
 
   await app.listen(3000);
+  console.log('Application running on: http://localhost:3000');
+  console.log('Swagger docs available at: http://localhost:3000/api/docs');
 }
 bootstrap();
