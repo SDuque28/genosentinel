@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -49,7 +50,7 @@ public class AuthController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Login exitoso",
-                    content = @Content(schema = @Schema(implementation = AuthResponse.class))
+                    content = @Content
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -92,15 +93,21 @@ public class AuthController {
             summary = "Registrar nuevo usuario",
             description = "Crea un nuevo usuario en el sistema"
     )
+    @SecurityRequirement(name = "Registrar Usuario")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
                     description = "Usuario creado exitosamente",
-                    content = @Content(schema = @Schema(implementation = AuthResponse.class))
+                    content = @Content
             ),
             @ApiResponse(
                     responseCode = "409",
                     description = "El nombre de usuario ya existe",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
                     content = @Content
             )
     })
@@ -181,7 +188,7 @@ public class AuthController {
         ));
     }
 
-    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public Map<String, String> handleAuthenticationException(Exception e) {
         return Map.of("error", "Invalid credentials");
