@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -26,8 +27,20 @@ export class PatientsService {
         ...dto,
         status: dto.status ?? PatientStatus.ACTIVE,
       });
+      if (
+        await this.patientRepo.findOne({
+          where: { firstName: dto.firstName },
+        })
+      ) {
+        throw new ConflictException(
+          `Ya existe un paciente con ese nombre y apellido"`,
+        );
+      }
       return await this.patientRepo.save(patient);
     } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
       console.log(`Error al crear el paciente: ${error}`);
       throw new BadRequestException('Error al crear el paciente');
     }

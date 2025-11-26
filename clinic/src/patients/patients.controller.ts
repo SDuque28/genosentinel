@@ -43,6 +43,10 @@ class PatientsController {
     status: 400,
     description: 'Datos inválidos o incompletos',
   })
+  @ApiResponse({
+    status: 409,
+    description: 'Ya existe un paciente con ese nombre',
+  })
   create(@Body() dto: CreatePatientDto): Promise<PatientResponseDto> {
     return this.patientsService.create(dto);
   }
