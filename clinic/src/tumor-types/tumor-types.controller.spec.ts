@@ -13,8 +13,6 @@ describe('TumorTypesController', () => {
     name: 'Cáncer de mama',
     systemAffected: 'Glándulas mamarias',
     description: 'Descripción de prueba',
-    createdAt: new Date(),
-    updatedAt: new Date(),
   };
 
   const mockTumorTypesService = {

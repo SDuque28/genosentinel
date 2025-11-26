@@ -15,8 +15,6 @@ describe('ClinicalRecordsController', () => {
     birthDate: '1985-06-15',
     gender: 'M',
     status: 'Activo',
-    createdAt: new Date(),
-    updatedAt: new Date(),
   };
 
   const mockTumorType = {
@@ -148,7 +146,6 @@ describe('ClinicalRecordsController', () => {
       };
       mockClinicalRecordsService.remove.mockResolvedValue(response);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const result = await controller.remove(1);
 
       expect(result).toEqual(response);
