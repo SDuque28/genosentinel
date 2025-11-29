@@ -18,7 +18,7 @@ export class TumorTypesService {
    * Crea un nuevo tipo de tumor
    * @throws ConflictException si el nombre ya existe
    */
-  async create(dto: CreateTumorTypeDto): Promise<TumorType> {
+  async create(dto: CreateTumorTypeDto){
     // Verificar si ya existe un tipo de tumor con ese nombre
     const existing = await this.tumorTypeRepo.findOne({
       where: { name: dto.name },
@@ -42,7 +42,7 @@ export class TumorTypesService {
   /**
    * Obtiene todos los tipos de tumor ordenados por nombre
    */
-  async findAll(): Promise<TumorType[]> {
+  async findAll(){
     return this.tumorTypeRepo.find({
       order: { name: 'ASC' },
     });
@@ -52,7 +52,7 @@ export class TumorTypesService {
    * Busca un tipo de tumor por ID
    * @throws NotFoundException si no existe
    */
-  async findOne(id: number): Promise<TumorType> {
+  async findOne(id: number){
     const tumorType = await this.tumorTypeRepo.findOne({ where: { id } });
 
     if (!tumorType) {
@@ -66,7 +66,7 @@ export class TumorTypesService {
    * Actualiza un tipo de tumor existente
    * @throws ConflictException si el nuevo nombre ya existe
    */
-  async update(id: number, dto: UpdateTumorTypeDto): Promise<TumorType> {
+  async update(id: number, dto: UpdateTumorTypeDto){
     const tumorType = await this.findOne(id);
 
     // Si se está actualizando el nombre, verificar que no exista
@@ -96,7 +96,7 @@ export class TumorTypesService {
    * Elimina permanentemente un tipo de tumor
    * @throws ConflictException si está siendo referenciado
    */
-  async remove(id: number): Promise<DeleteResponseDto> {
+  async remove(id: number){
     const tumorType = await this.findOne(id);
 
     try {
@@ -113,13 +113,5 @@ export class TumorTypesService {
       }
       throw new BadRequestException('Error al eliminar el tipo de tumor');
     }
-  }
-
-  /**
-   * Verifica si existe un tipo de tumor
-   */
-  async exists(id: number): Promise<boolean> {
-    const count = await this.tumorTypeRepo.count({ where: { id } });
-    return count > 0;
   }
 }

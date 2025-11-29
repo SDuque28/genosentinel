@@ -29,7 +29,7 @@ export class ClinicalRecordsService {
    * Crea una nueva historia clínica
    * @throws NotFoundException si el paciente o tipo de tumor no existe
    */
-  async create(dto: CreateClinicalRecordDto): Promise<ClinicalRecord> {
+  async create(dto: CreateClinicalRecordDto){
     // Validar que existe el paciente
     const patient = await this.patientRepo.findOne({
       where: { id: dto.patientId },
@@ -71,7 +71,7 @@ export class ClinicalRecordsService {
   /**
    * Obtiene todas las historias clínicas con sus relaciones
    */
-  async findAll(): Promise<ClinicalRecord[]> {
+  async findAll(){
     return this.recordRepo.find({
       relations: ['patient', 'tumorType'],
       order: { diagnosisDate: 'DESC' },
@@ -82,7 +82,7 @@ export class ClinicalRecordsService {
    * Busca una historia clínica por ID
    * @throws NotFoundException si no existe
    */
-  async findOne(id: number): Promise<ClinicalRecord> {
+  async findOne(id: number){
     const record = await this.recordRepo.findOne({
       where: { id },
       relations: ['patient', 'tumorType'],
@@ -101,13 +101,9 @@ export class ClinicalRecordsService {
    * Actualiza una historia clínica existente
    * @throws NotFoundException si la historia, paciente o tumor no existen
    */
-  async update(
-    id: number,
-    dto: UpdateClinicalRecordDto,
-  ): Promise<ClinicalRecord> {
+  async update(id: number,dto: UpdateClinicalRecordDto,){
     const record = await this.findOne(id);
 
-    // Si se actualiza el paciente, validar que existe
     if (dto.patientId && dto.patientId !== record.patient.id) {
       const patient = await this.patientRepo.findOne({
         where: { id: dto.patientId },
@@ -152,7 +148,7 @@ export class ClinicalRecordsService {
   /**
    * Elimina permanentemente una historia clínica
    */
-  async remove(id: number): Promise<DeleteClinicalRecordResponseDto> {
+  async remove(id: number) {
     const record = await this.findOne(id);
 
     try {

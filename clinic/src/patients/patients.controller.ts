@@ -47,7 +47,7 @@ class PatientsController {
     status: 409,
     description: 'Ya existe un paciente con ese nombre',
   })
-  create(@Body() dto: CreatePatientDto): Promise<PatientResponseDto> {
+  create(@Body() dto: CreatePatientDto){
     return this.patientsService.create(dto);
   }
 
@@ -62,7 +62,7 @@ class PatientsController {
     description: 'Lista de pacientes obtenida exitosamente',
     type: [PatientResponseDto],
   })
-  findAll(): Promise<PatientResponseDto[]> {
+  findAll() {
     return this.patientsService.findAll();
   }
 
@@ -86,7 +86,7 @@ class PatientsController {
     status: 404,
     description: 'Paciente no encontrado',
   })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<PatientResponseDto> {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.patientsService.findOne(id);
   }
 
@@ -112,10 +112,7 @@ class PatientsController {
     status: 404,
     description: 'Paciente no encontrado',
   })
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdatePatientDto,
-  ): Promise<PatientResponseDto> {
+  update(@Param('id', ParseIntPipe) id: number,@Body() dto: UpdatePatientDto) {
     return this.patientsService.update(id, dto);
   }
 
@@ -140,9 +137,7 @@ class PatientsController {
     status: 404,
     description: 'Paciente no encontrado',
   })
-  deactivate(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<PatientResponseDto> {
+  deactivate(@Param('id', ParseIntPipe) id: number) {
     return this.patientsService.deactivate(id);
   }
 }

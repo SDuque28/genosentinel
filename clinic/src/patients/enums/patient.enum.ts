@@ -5,6 +5,5 @@ export enum Gender {
 
 export enum PatientStatus {
   ACTIVE = 'Activo',
-  FOLLOW_UP = 'Seguimiento',
   DEACTIVATED = 'Desactivado',
 }

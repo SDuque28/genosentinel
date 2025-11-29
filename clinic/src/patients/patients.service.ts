@@ -21,7 +21,7 @@ export class PatientsService {
   /**
    * Crea un nuevo paciente
    */
-  async create(dto: CreatePatientDto): Promise<Patient> {
+  async create(dto: CreatePatientDto){
     try {
       const patient = this.patientRepo.create({
         ...dto,
@@ -49,7 +49,7 @@ export class PatientsService {
   /**
    * Obtiene todos los pacientes
    */
-  async findAll(): Promise<Patient[]> {
+  async findAll() {
     return this.patientRepo.find({
       order: { id: 'ASC' },
     });
@@ -58,7 +58,7 @@ export class PatientsService {
   /**
    * Busca un paciente por ID
    */
-  async findOne(id: number): Promise<Patient> {
+  async findOne(id: number){
     const patient = await this.patientRepo.findOne({ where: { id } });
 
     if (!patient) {
@@ -71,7 +71,7 @@ export class PatientsService {
   /**
    * Actualiza un paciente existente
    */
-  async update(id: number, dto: UpdatePatientDto): Promise<Patient> {
+  async update(id: number, dto: UpdatePatientDto) {
     const patient = await this.findOne(id);
 
     Object.assign(patient, dto);
@@ -87,7 +87,7 @@ export class PatientsService {
   /**
    * Cambia el estado de un paciente
    */
-  async changeStatus(id: number, status: PatientStatus): Promise<Patient> {
+  async changeStatus(id: number, status: PatientStatus){
     const patient = await this.findOne(id);
     patient.status = status;
     return this.patientRepo.save(patient);
@@ -96,7 +96,7 @@ export class PatientsService {
   /**
    * Desactiva un paciente (soft delete)
    */
-  async deactivate(id: number): Promise<Patient> {
+  async deactivate(id: number) {
     return this.changeStatus(id, PatientStatus.DEACTIVATED);
   }
 }

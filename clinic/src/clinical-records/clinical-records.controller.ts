@@ -1,22 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
-import {
-  ApiOperation,
-  ApiTags,
-  ApiResponse,
-  ApiParam,
-  ApiBody,
-} from '@nestjs/swagger';
+import {Body,Controller,Delete,Get,Param,ParseIntPipe,Patch,Post,HttpCode,HttpStatus,} from '@nestjs/common';
+import {ApiOperation,ApiTags,ApiResponse,ApiParam,ApiBody,} from '@nestjs/swagger';
 import { ClinicalRecordsService } from './clinical-records.service';
 import { CreateClinicalRecordDto } from './dto/create-clinical-record.dto';
 import { UpdateClinicalRecordDto } from './dto/update-clinical-record.dto';
@@ -51,7 +34,7 @@ export class ClinicalRecordsController {
     status: 404,
     description: 'Paciente o tipo de tumor no encontrado',
   })
-  create(@Body() dto: CreateClinicalRecordDto): Promise<ClinicalRecord> {
+  create(@Body() dto: CreateClinicalRecordDto){
     return this.clinicalRecordsService.create(dto);
   }
 
@@ -66,7 +49,7 @@ export class ClinicalRecordsController {
     description: 'Lista de historias clínicas obtenida exitosamente',
     type: [ClinicalRecord],
   })
-  findAll(): Promise<ClinicalRecord[]> {
+  findAll(){
     return this.clinicalRecordsService.findAll();
   }
 
@@ -91,7 +74,7 @@ export class ClinicalRecordsController {
     status: 404,
     description: 'Historia clínica no encontrada',
   })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<ClinicalRecord> {
+  findOne(@Param('id', ParseIntPipe) id: number){
     return this.clinicalRecordsService.findOne(id);
   }
 
@@ -117,10 +100,7 @@ export class ClinicalRecordsController {
     status: 404,
     description: 'Historia clínica, paciente o tipo de tumor no encontrado',
   })
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateClinicalRecordDto,
-  ): Promise<ClinicalRecord> {
+  update(@Param('id', ParseIntPipe) id: number,@Body() dto: UpdateClinicalRecordDto,){
     return this.clinicalRecordsService.update(id, dto);
   }
 
@@ -146,9 +126,7 @@ export class ClinicalRecordsController {
     status: 404,
     description: 'Historia clínica no encontrada',
   })
-  remove(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<DeleteClinicalRecordResponseDto> {
+  remove(@Param('id', ParseIntPipe) id: number,){
     return this.clinicalRecordsService.remove(id);
   }
 }

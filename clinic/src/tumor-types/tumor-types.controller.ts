@@ -32,7 +32,7 @@ export class TumorTypesController {
     status: 409,
     description: 'Conflicto - El nombre del tipo de tumor ya está en uso',
   })
-  create(@Body() dto: CreateTumorTypeDto): Promise<TumorType> {
+  create(@Body() dto: CreateTumorTypeDto) {
     return this.tumorTypesService.create(dto);
   }
 
@@ -47,7 +47,7 @@ export class TumorTypesController {
     description: 'Lista de tipos de tumor obtenida exitosamente',
     type: [TumorType],
   })
-  findAll(): Promise<TumorType[]> {
+  findAll() {
     return this.tumorTypesService.findAll();
   }
 
@@ -72,7 +72,7 @@ export class TumorTypesController {
     status: 404,
     description: 'Tipo de tumor no encontrado',
   })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<TumorType> {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.tumorTypesService.findOne(id);
   }
 
@@ -102,10 +102,7 @@ export class TumorTypesController {
     status: 409,
     description: 'Conflicto - El nuevo nombre ya está en uso',
   })
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateTumorTypeDto,
-  ): Promise<TumorType> {
+  update(@Param('id', ParseIntPipe) id: number,@Body() dto: UpdateTumorTypeDto,) {
     return this.tumorTypesService.update(id, dto);
   }
 
@@ -136,7 +133,7 @@ export class TumorTypesController {
     description:
       'No se puede eliminar - El tipo de tumor está siendo referenciado por historias clínicas',
   })
-  remove(@Param('id', ParseIntPipe) id: number): Promise<DeleteResponseDto> {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.tumorTypesService.remove(id);
   }
 }
