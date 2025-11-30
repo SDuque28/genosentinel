@@ -37,31 +37,8 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 50)
     private String role = "USER"; // Rol único por defecto
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @Column(nullable = false)
     private Boolean active = true;
-
-    /**
-     * Método de ciclo de vida que establece la fecha de creación antes de persistir.
-     */
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    /**
-     * Método de ciclo de vida que actualiza la fecha de modificación antes de actualizar.
-     */
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 
     /** Métodos de UserDetails **/
     @Override
