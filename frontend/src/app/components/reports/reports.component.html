@@ -1,0 +1,105 @@
+<div class="reports-container">
+  <div class="header">
+    <h2>Patient Variant Reports</h2>
+    <button mat-raised-button color="primary" (click)="openForm()" *ngIf="!showForm">
+      <mat-icon>add</mat-icon>
+      Add Report
+    </button>
+  </div>
+
+  <mat-card *ngIf="showForm" class="form-card">
+    <mat-card-header>
+      <mat-card-title>{{ editMode ? 'Edit Report' : 'New Report' }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Patient</mat-label>
+          <mat-select [(ngModel)]="currentReport.patient_id" name="patient_id" required>
+            <mat-option *ngFor="let patient of patients" [value]="patient.id.toString()">
+              {{patient.firstName}} {{patient.lastName}} (ID: {{patient.id}})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Variant</mat-label>
+          <mat-select [(ngModel)]="currentReport.variant" name="variant" required>
+            <mat-option *ngFor="let variant of variants" [value]="variant.id">
+              {{variant.gene_details?.symbol}} - {{variant.chromosome}}:{{variant.position}} ({{variant.impact}})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Detection Date</mat-label>
+          <input matInput type="date" [(ngModel)]="currentReport.detection_date" name="detection_date" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Allele Frequency (0-1)</mat-label>
+          <input matInput type="number" step="0.0001" min="0" max="1" 
+                 [(ngModel)]="currentReport.allele_frequency" name="allele_frequency" required>
+        </mat-form-field>
+
+        <div class="button-row">
+          <button mat-raised-button color="primary" (click)="saveReport()" type="button">
+            Save
+          </button>
+          <button mat-button (click)="cancelForm()" type="button">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-accordion *ngFor="let report of reports" class="report-accordion">
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <strong>Patient:</strong> {{getPatientName(report)}}
+        </mat-panel-title>
+        <mat-panel-description>
+          {{getVariantInfo(report)}} | VAF: {{report.allele_frequency}}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="report-details">
+        <div class="detail-section">
+          <h3>Patient Information</h3>
+          <p><strong>Name:</strong> {{report.patient_data?.first_name}} {{report.patient_data?.last_name}}</p>
+          <p><strong>Birth Date:</strong> {{report.patient_data?.birth_date}}</p>
+          <p><strong>Gender:</strong> {{report.patient_data?.gender}}</p>
+          <p><strong>Status:</strong> {{report.patient_data?.status}}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3>Variant Information</h3>
+          <p><strong>Gene:</strong> {{report.variant_details?.gene_details?.symbol}} - {{report.variant_details?.gene_details?.full_name}}</p>
+          <p><strong>Location:</strong> {{report.variant_details?.chromosome}}:{{report.variant_details?.position}}</p>
+          <p><strong>Change:</strong> {{report.variant_details?.reference_base}} → {{report.variant_details?.alternate_base}}</p>
+          <p><strong>Impact:</strong> <span class="impact-badge">{{report.variant_details?.impact}}</span></p>
+        </div>
+
+        <div class="detail-section">
+          <h3>Report Details</h3>
+          <p><strong>Detection Date:</strong> {{report.detection_date}}</p>
+          <p><strong>Allele Frequency:</strong> {{report.allele_frequency}}</p>
+          <p><strong>Created:</strong> {{report.created_at | date:'short'}}</p>
+        </div>
+
+        <div class="action-buttons">
+          <button mat-raised-button color="primary" (click)="editReport(report)">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+          <button mat-raised-button color="warn" (click)="deleteReport(report.id)">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

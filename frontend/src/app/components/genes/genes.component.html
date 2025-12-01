@@ -1,0 +1,90 @@
+<div class="genes-container">
+  <div class="header">
+    <h2>Genes Management</h2>
+    <button mat-raised-button color="primary" (click)="openForm()" *ngIf="!showForm">
+      <mat-icon>add</mat-icon>
+      Add Gene
+    </button>
+  </div>
+
+  <mat-card *ngIf="showForm" class="form-card">
+    <mat-card-header>
+      <mat-card-title>{{ editMode ? 'Edit Gene' : 'New Gene' }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Symbol</mat-label>
+          <input matInput [(ngModel)]="currentGene.symbol" name="symbol" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Full Name</mat-label>
+          <input matInput [(ngModel)]="currentGene.full_name" name="full_name" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Function Summary</mat-label>
+          <textarea matInput [(ngModel)]="currentGene.function_summary" name="function_summary" rows="4" required></textarea>
+        </mat-form-field>
+
+        <div class="button-row">
+          <button mat-raised-button color="primary" (click)="saveGene()" type="button">
+            Save
+          </button>
+          <button mat-button (click)="cancelForm()" type="button">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Loading genes...</p>
+  </div>
+
+  <!-- No Data Message -->
+  <mat-card *ngIf="!loading && genes.length === 0 && !showForm" class="no-data-card">
+    <mat-card-content>
+      <mat-icon class="no-data-icon">info</mat-icon>
+      <h3>No genes found</h3>
+      <p>Click "Add Gene" to create your first gene.</p>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Data Table -->
+  <table mat-table [dataSource]="genes" class="mat-elevation-z8" *ngIf="!loading && genes.length > 0">
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef> ID </th>
+      <td mat-cell *matCellDef="let gene"> {{gene.id}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="symbol">
+      <th mat-header-cell *matHeaderCellDef> Symbol </th>
+      <td mat-cell *matCellDef="let gene"> <strong>{{gene.symbol}}</strong> </td>
+    </ng-container>
+
+    <ng-container matColumnDef="full_name">
+      <th mat-header-cell *matHeaderCellDef> Full Name </th>
+      <td mat-cell *matCellDef="let gene"> {{gene.full_name}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let gene">
+        <button mat-icon-button color="primary" (click)="editGene(gene)" matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteGene(gene.id)" matTooltip="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>

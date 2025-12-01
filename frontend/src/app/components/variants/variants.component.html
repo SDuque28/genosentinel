@@ -1,0 +1,108 @@
+<div class="variants-container">
+  <div class="header">
+    <h2>Genetic Variants Management</h2>
+    <button mat-raised-button color="primary" (click)="openForm()" *ngIf="!showForm">
+      <mat-icon>add</mat-icon>
+      Add Variant
+    </button>
+  </div>
+
+  <mat-card *ngIf="showForm" class="form-card">
+    <mat-card-header>
+      <mat-card-title>{{ editMode ? 'Edit Variant' : 'New Variant' }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Gene</mat-label>
+          <mat-select [(ngModel)]="currentVariant.gene" name="gene" required>
+            <mat-option *ngFor="let gene of genes" [value]="gene.id">
+              {{gene.symbol}} - {{gene.full_name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Chromosome</mat-label>
+          <input matInput [(ngModel)]="currentVariant.chromosome" name="chromosome" placeholder="e.g., chr17" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Position</mat-label>
+          <input matInput type="number" [(ngModel)]="currentVariant.position" name="position" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Reference Base</mat-label>
+          <input matInput [(ngModel)]="currentVariant.reference_base" name="reference_base" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Alternate Base</mat-label>
+          <input matInput [(ngModel)]="currentVariant.alternate_base" name="alternate_base" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Impact</mat-label>
+          <mat-select [(ngModel)]="currentVariant.impact" name="impact" required>
+            <mat-option *ngFor="let impact of impactTypes" [value]="impact">
+              {{impact}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="button-row">
+          <button mat-raised-button color="primary" (click)="saveVariant()" type="button">
+            Save
+          </button>
+          <button mat-button (click)="cancelForm()" type="button">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <table mat-table [dataSource]="variants" class="mat-elevation-z8">
+    <ng-container matColumnDef="gene">
+      <th mat-header-cell *matHeaderCellDef> Gene </th>
+      <td mat-cell *matCellDef="let variant"> 
+        {{variant.gene_details?.symbol || 'N/A'}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="chromosome">
+      <th mat-header-cell *matHeaderCellDef> Chromosome </th>
+      <td mat-cell *matCellDef="let variant"> {{variant.chromosome}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="position">
+      <th mat-header-cell *matHeaderCellDef> Position </th>
+      <td mat-cell *matCellDef="let variant"> {{variant.position}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="impact">
+      <th mat-header-cell *matHeaderCellDef> Impact </th>
+      <td mat-cell *matCellDef="let variant"> 
+        <span class="impact-badge" [class]="'impact-' + variant.impact.toLowerCase()">
+          {{variant.impact}}
+        </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let variant">
+        <button mat-icon-button color="primary" (click)="editVariant(variant)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteVariant(variant.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>
