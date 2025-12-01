@@ -29,8 +29,8 @@ INSTALLED_APPS = [
 
     # Local apps
     'genes',
-    'variants',
-    'reports',
+    'genetic_variants',
+    'patient_reports',
 ]
 
 MIDDLEWARE = [
@@ -102,8 +102,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # REST Framework configuration
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    # 'PAGE_SIZE': 20,
 }
 
 # Spectacular settings for Swagger/OpenAPI
@@ -115,10 +115,12 @@ SPECTACULAR_SETTINGS = {
 }
 
 # CORS settings
-CORS_ALLOWED_ORIGINS = os.getenv(
-    'CORS_ALLOWED_ORIGINS',
-    'http://localhost:3000,http://127.0.0.1:3000'
-).split(',')
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+]
 
 # Clinical Microservice URL
 CLINICAL_SERVICE_URL = os.getenv('CLINICAL_SERVICE_URL', 'http://localhost:8001/api')
