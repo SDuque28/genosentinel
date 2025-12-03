@@ -1,802 +1,429 @@
-# GenoSentinel Auth Gateway
+Here's a comprehensive README.md for your project:
 
-Authentication and authorization microservice for the GenoSentinel system. Handles user registration, login, JWT token generation and validation for the clinical and genomic microservices.
 
-## Table of Contents
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Technologies](#technologies)
-- [Getting Started](#getting-started)
-- [API Endpoints](#api-endpoints)
-- [Authentication Flow](#authentication-flow)
-- [Error Codes](#error-codes)
-- [Configuration](#configuration)
-- [Testing](#testing)
-- [Troubleshooting](#troubleshooting)
+# GenoSentinel - Genomic Variant Management System
 
----
+A microservices-based application for managing genetic variants, genes, and patient reports in oncological research. The system integrates clinical data with genomic information to provide comprehensive variant analysis and reporting.
 
-## Overview
+##  Architecture
 
-The Auth Gateway serves as the authentication layer for GenoSentinel, providing:
-- User registration and login
-- JWT token generation and validation
-- Single role-based access control (all users have "USER" role)
-- Stateless authentication for microservices communication
-
-**Key Features:**
-- ✅ BCrypt password encryption
-- ✅ JWT-based authentication (stateless)
-- ✅ Token validation endpoint for other microservices
-- ✅ CORS configuration for frontend integration
-- ✅ MySQL persistence with JPA/Hibernate
-- ✅ Health check endpoint for Kubernetes
-
----
-
-## Architecture
 ```
-┌─────────────┐
-│   Client    │
-│ (Frontend)  │
-└──────┬──────┘
-       │ HTTP Request
-       ↓
-┌────────────────────────────┐
-│    Auth Gateway :3003      │
-│                            │
-│  ┌─────────────────────┐   │
-│  │  AuthController     │   │
-│  │  - /auth/login      │   │
-│  │  - /auth/register   │   │
-│  │  - /auth/validate   │   │
-│  └──────────┬──────────┘   │
-│             │              │
-│  ┌──────────▼──────────┐   │
-│  │   JwtService        │   │
-│  │  - Generate Token   │   │
-│  │  - Validate Token   │   │
-│  └──────────┬──────────┘   │
-│             │              │
-│  ┌──────────▼──────────┐   │
-│  │  SecurityFilter     │   │
-│  │  - JWT Validation   │   │
-│  │  - Role Extraction  │   │
-│  └──────────┬──────────┘   │
-│             │              │
-│  ┌──────────▼──────────┐   │
-│  │  UserRepository     │   │
-│  └─────────────────────┘   │
-└─────────────┬──────────────┘
-              │
-              ↓
-      ┌──────────────┐
-      │  MySQL :3308 │
-      │  genosentinel│
-      └──────────────┘
+            ┌──────────────┐
+            │   Angular    │  Frontend (Port 4200)
+            │  (Frontend)  │
+            └──────┬───────┘
+                   │ HTTP + JWT Auth
+                   ▼
+┌─────────────────────────────────────┐
+│      Spring Boot Gateway            │  Port 8080 (/genosentinel)
+│  - Authentication & Authorization   │
+│  - API Gateway                      │
+│  - Request Routing                  │
+└──────┬──────────────────┬───────────┘
+       │                  │
+       ▼                  ▼
+┌──────────────┐   ┌─────────────────┐
+│   Django     │   │    NestJS       │
+│  (Port 8000) │◄──┤  (Port 3000)    │
+│              │   │                 │
+│  Genomic API │   │  Clinical API   │
+│  - Genes     │   │  - Patients     │
+│  - Variants  │   │  - Records      │
+│  - Reports   │   │  - Tumor Types  │
+└──────┬───────┘   └────────┬────────┘
+       │                    │
+       ▼                    ▼
+┌──────────────┐   ┌─────────────────┐
+│    MySQL     │   │     MySQL       │
+│ genomic_db   │   │  clinical_db    │
+└──────────────┘   └─────────────────┘
 ```
 
----
+## Features
 
-## Technologies
+### Genomic Microservice (Django)
+- **Gene Management**: Catalog genes of oncological interest with functions and descriptions
+- **Genetic Variants**: Track specific mutations with chromosome positions, reference/alternate bases, and impact classification
+- **Patient Reports**: Link variants to patients with detection dates and allele frequencies
+- **Clinical Integration**: Validates patient information via the Clinical Microservice
 
-- **Java 17**
-- **Spring Boot 3.2.x**
-- **Spring Security** - Authentication & Authorization
-- **JWT (jjwt 0.12.3)** - Token generation and validation
-- **Spring Data JPA** - Database persistence
-- **MySQL 8.4** - Database
-- **Lombok** - Reduce boilerplate code
-- **BCrypt** - Password hashing
+### Clinical Microservice (NestJS)
+- **Patient Management**: Store patient demographics and medical information
+- **Clinical Records**: Maintain comprehensive medical histories
+- **Tumor Types**: Classify and manage different tumor categories
 
----
+### API Gateway (Spring Boot)
+- **JWT Authentication**: Secure token-based authentication
+- **Request Routing**: Routes requests to appropriate microservices
+- **Swagger Documentation**: Interactive API documentation
+- **CORS Management**: Handles cross-origin requests
 
-## Getting Started
+### Frontend (Angular)
+- **User Authentication**: Secure login system
+- **Gene Management**: CRUD operations for genes
+- **Variant Tracking**: Manage genetic variants
+- **Patient Reports**: Create and view patient genomic reports
+- **Material Design**: Modern, responsive UI
+
+##  Prerequisites
+
+- **Docker** (20.x or higher)
+- **Kubernetes/Minikube** (1.28 or higher)
+- **Java** 21
+- **Node.js** 18.x or higher
+- **Python** 3.11 or higher
+- **MySQL** 8.x
+
+## Technology Stack
+
+| Component | Technology | Version |
+|-----------|-----------|---------|
+| Gateway | Spring Boot | 3.x |
+| Clinical Service | NestJS | 10.x |
+| Genomic Service | Django | 5.x |
+| Frontend | Angular | 18.x |
+| Database | MySQL | 8.4 |
+| Orchestration | Kubernetes | 1.28+ |
+| Container | Docker | 20.x+ |
+
+## Installation
+
+### Local Development Setup
+
+#### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/genosentinel.git
+cd genosentinel
+```
+
+#### 2. Setup Databases
+
+Create three MySQL databases:
+
+```sql
+-- Auth Gateway Database
+CREATE DATABASE genosentinel;
+CREATE USER 'genosentinel_user'@'localhost' IDENTIFIED BY 'abcd1234';
+GRANT ALL PRIVILEGES ON genosentinel.* TO 'genosentinel_user'@'localhost';
+
+-- Clinical Database
+CREATE DATABASE clinical_db;
+CREATE USER 'clinical_user'@'localhost' IDENTIFIED BY 'clinic1234';
+GRANT ALL PRIVILEGES ON clinical_db.* TO 'clinical_user'@'localhost';
+
+-- Genomic Database
+CREATE DATABASE genomic_db;
+CREATE USER 'genomic_user'@'localhost' IDENTIFIED BY 'genomic1234';
+GRANT ALL PRIVILEGES ON genomic_db.* TO 'genomic_user'@'localhost';
+
+FLUSH PRIVILEGES;
+```
+
+#### 3. Configure Environment Variables
+
+**Spring Boot** (`auth-gateway/src/main/resources/application.properties`):
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/genosentinel
+spring.datasource.username=genosentinel_user
+spring.datasource.password=abcd1234
+nestjs.base-url=http://localhost:3000
+django.genomic.base-url=http://localhost:8000
+```
+
+**NestJS** (`.env`):
+```env
+PORT=3000
+DATABASE_HOST=localhost
+DATABASE_PORT=3306
+DATABASE_USER=clinical_user
+DATABASE_PASSWORD=clinic1234
+DATABASE_NAME=clinical_db
+```
+
+**Django** (`genomic/.env`):
+```env
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+DB_NAME=genomic_db
+DB_USER=genomic_user
+DB_PASSWORD=genomic1234
+DB_HOST=localhost
+DB_PORT=3306
+CLINICAL_SERVICE_URL=http://localhost:3000/api
+```
+
+#### 4. Start Services
+
+**Terminal 1 - Spring Boot:**
+```bash
+cd auth-gateway
+./mvnw spring-boot:run
+```
+
+**Terminal 2 - NestJS:**
+```bash
+cd clinical-service
+npm install
+npm run start:dev
+```
+
+**Terminal 3 - Django:**
+```bash
+cd genomic
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+**Terminal 4 - Angular:**
+```bash
+cd frontend
+npm install
+ng serve
+```
+
+#### 5. Access the Application
+
+- **Frontend**: http://localhost:4200
+- **Spring Boot Gateway**: http://localhost:8080/genosentinel/swagger-ui.html
+- **Django API Docs**: http://localhost:8000/api/docs/
+- **NestJS**: http://localhost:3000
+
+##  Docker Deployment
+
+### Build Images
+
+```bash
+# Set Minikube Docker environment
+eval $(minikube docker-env)
+
+# Build Spring Boot
+cd auth-gateway
+docker build -t auth-gateway:1.0 .
+
+# Build NestJS
+cd ../clinical-service
+docker build -t nestjs-clinical:1.0 .
+
+# Build Django
+cd ../genomic
+docker build -t django-genomic:1.0 .
+```
+
+## Kubernetes Deployment
 
 ### Prerequisites
 ```bash
-- Java 17 or higher
-- Maven 3.8+
-- Docker & Docker Compose (for MySQL)
-- IDE (IntelliJ IDEA, VS Code, Eclipse)
+# Start Minikube
+minikube start
+
+# Verify cluster
+kubectl cluster-info
 ```
 
-### 1. Start MySQL Database
+### Deploy to Kubernetes
+
 ```bash
-# From project root
-docker-compose up -d mysql
+# Deploy all services
+cd k8s
+./apply-all.sh
 
-# Verify it's running
-docker-compose ps
+# Check deployment status
+kubectl get pods
+kubectl get services
 
-# Check logs
-docker-compose logs mysql
+# Get Minikube IP
+minikube ip
 ```
 
-### 2. Configure Application
+### Access Application in Kubernetes
 
-Edit `src/main/resources/application.properties`:
-```properties
-# Server Configuration
-spring.application.name=auth-gateway
-server.port=3003
-
-# Database Configuration
-spring.datasource.url=jdbc:mysql://localhost:3308/genosentinel
-spring.datasource.username=genosentinel_user
-spring.datasource.password=abcd1234
-
-# JWT Configuration
-jwt.secret=genosentinel-super-secret-key-change-in-production-minimum-256-bits
-jwt.expiration=86400000
-```
-
-### 3. Run the Application
 ```bash
-# Using Maven wrapper
-./mvnw spring-boot:run
-
-# Or on Windows
-mvnw.cmd spring-boot:run
-
-# Using IDE
-# Run AuthGatewayApplication.java main method
+# Get the URL
+echo "http://$(minikube ip):30080/genosentinel/swagger-ui.html"
 ```
 
-**Expected output:**
-```
-Started AuthGatewayApplication in 4.234 seconds (process running for 4.789)
-Tomcat started on port(s): 3003 (http) with context path ''
-```
+### Kubernetes Architecture
 
----
-
-## API Endpoints
-
-### Base URL
 ```
-http://localhost:3003
+Minikube Cluster
+├── Spring Boot Pod (NodePort 30080)
+│   └── Auth MySQL Pod
+├── NestJS Pod (ClusterIP)
+│   └── NestJS MySQL Pod
+└── Django Pod (ClusterIP)
+    └── Django MySQL Pod
 ```
 
-### Public Endpoints (No Authentication Required)
+### Cleanup Kubernetes Resources
 
-#### 1. Health Check
-```http
-GET /health
-```
-
-**Response:**
-```json
-{
-  "status": "UP",
-  "service": "auth-gateway",
-  "timestamp": "2025-11-11T20:30:45.123"
-}
-```
-
----
-
-#### 2. Register User
-```http
-POST /auth/register
-Content-Type: application/json
-```
-
-**Request Body:**
-```json
-{
-  "username": "john_doe",
-  "email": "john@example.com",
-  "password": "secure123"
-}
-```
-
-**Success Response (201 Created):**
-```json
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huX2RvZSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzMxMzU0MDAwLCJleHAiOjE3MzE0NDA0MDB9.signature",
-  "tokenType": "Bearer",
-  "username": "john_doe",
-  "email": "john@example.com",
-  "role": "USER"
-}
-```
-
-**Validation Rules:**
-- `username`: Required, 3-100 characters, unique
-- `email`: Required, valid email format, unique
-- `password`: Required, minimum 6 characters
-
----
-
-#### 3. Login
-```http
-POST /auth/login
-Content-Type: application/json
-```
-
-**Request Body:**
-```json
-{
-  "username": "john_doe",
-  "password": "secure123"
-}
-```
-
-**Success Response (200 OK):**
-```json
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
-  "tokenType": "Bearer",
-  "username": "john_doe",
-  "email": "john@example.com",
-  "role": "USER"
-}
-```
-
----
-
-### Protected Endpoints (Authentication Required)
-
-#### 4. Validate Token
-```http
-GET /auth/validate
-Authorization: Bearer {token}
-```
-
-**Success Response (200 OK):**
-```json
-{
-  "username": "john_doe",
-  "role": "USER",
-  "valid": "true"
-}
-```
-
-**Usage:** Other microservices call this endpoint to verify JWT tokens.
-
----
-
-## Authentication Flow
-
-### Registration Flow
-```
-1. Client sends POST /auth/register with user data
-2. Server validates input (username/email unique, password length)
-3. Server hashes password with BCrypt
-4. Server saves user to database (role = "USER" by default)
-5. Server generates JWT token
-6. Server returns token + user info
-```
-
-### Login Flow
-```
-1. Client sends POST /auth/login with credentials
-2. Server validates username/password against database
-3. Server generates JWT token with username and role
-4. Server returns token + user info
-```
-
-### Token Validation Flow
-```
-1. Client/Microservice sends request with Authorization header
-2. JwtAuthFilter intercepts request
-3. Filter extracts token from "Bearer {token}" header
-4. Filter validates token signature and expiration
-5. Filter extracts username and role from token
-6. Filter sets authentication in SecurityContext
-7. Request proceeds to controller
-```
-
-### JWT Token Structure
-```json
-{
-  "sub": "john_doe",          // Username
-  "role": "USER",             // User role
-  "iat": 1731354000,          // Issued at (timestamp)
-  "exp": 1731440400           // Expiration (timestamp)
-}
-```
-
----
-
-## Error Codes
-
-### HTTP Status Codes
-
-| Code | Meaning | When It Occurs |
-|------|---------|----------------|
-| 200 | OK | Successful request |
-| 201 | Created | User registered successfully |
-| 400 | Bad Request | Invalid input data (missing fields, invalid format) |
-| 401 | Unauthorized | Invalid credentials or expired/invalid token |
-| 403 | Forbidden | Valid token but insufficient permissions |
-| 409 | Conflict | Username or email already exists |
-| 500 | Internal Server Error | Server-side error (database, unexpected exception) |
-
----
-
-### Common Error Responses
-
-#### 400 - Bad Request
-**Cause:** Missing or invalid input fields
-```json
-{
-  "timestamp": "2025-11-11T20:30:45.123",
-  "status": 400,
-  "error": "Bad Request",
-  "message": "Validation failed: username is required",
-  "path": "/auth/register"
-}
-```
-
-**How to fix:**
-- Ensure all required fields are present
-- Check field formats (email must be valid, password min 6 chars)
-- Verify JSON syntax is correct
-
----
-
-#### 401 - Unauthorized (Invalid Credentials)
-**Cause:** Wrong username or password
-```json
-{
-  "error": "Invalid credentials"
-}
-```
-
-**How to fix:**
-- Verify username is correct (case-sensitive)
-- Verify password is correct
-- Check if user exists in database
-- Ensure user account is active
-
----
-
-#### 401 - Unauthorized (Invalid Token)
-**Cause:** Token is expired, malformed, or has invalid signature
-```json
-{
-  "timestamp": "2025-11-11T20:30:45.123",
-  "status": 401,
-  "error": "Unauthorized",
-  "message": "Invalid token",
-  "path": "/auth/validate"
-}
-```
-
-**How to fix:**
-- Request a new token via `/auth/login`
-- Ensure token is sent in header: `Authorization: Bearer {token}`
-- Check token hasn't expired (default: 24 hours)
-- Verify JWT secret matches between services
-
----
-
-#### 409 - Conflict (Duplicate User)
-**Cause:** Username or email already registered
-```json
-{
-  "timestamp": "2025-11-11T20:30:45.123",
-  "status": 409,
-  "error": "Conflict",
-  "message": "Username already exists",
-  "path": "/auth/register"
-}
-```
-
-**How to fix:**
-- Choose a different username
-- Use a different email address
-- Check if user already exists before registering
-
----
-
-#### 500 - Internal Server Error
-**Cause:** Database connection issue, unexpected exception
-```json
-{
-  "timestamp": "2025-11-11T20:30:45.123",
-  "status": 500,
-  "error": "Internal Server Error",
-  "message": "Could not open JPA EntityManager",
-  "path": "/auth/login"
-}
-```
-
-**How to fix:**
-- Check MySQL is running: `docker-compose ps`
-- Verify database credentials in `application.properties`
-- Check application logs for stack trace
-- Restart application and database
-
----
-
-## Configuration
-
-### Environment Variables
-
-You can override properties using environment variables:
 ```bash
-# Database
-export DB_HOST=localhost
-export DB_PORT=3308
-export DB_NAME=genosentinel
-export DB_USER=genosentinel_user
-export DB_PASSWORD=abcd1234
-
-# JWT
-export JWT_SECRET=your-secret-key-here
-export JWT_EXPIRATION=86400000
-
-# Server
-export SERVER_PORT=3003
+cd k8s
+./cleanup.sh
 ```
 
-### Application Properties Reference
-```properties
-# Server
-server.port=3003
+##  API Documentation
 
-# Database
-spring.datasource.url=jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3308}/${DB_NAME:genosentinel}
-spring.datasource.username=${DB_USER:genosentinel_user}
-spring.datasource.password=${DB_PASSWORD:abcd1234}
+### Spring Boot Gateway
+- **Swagger UI**: `http://localhost:8080/genosentinel/swagger-ui.html`
+- **OpenAPI Spec**: `http://localhost:8080/genosentinel/v3/api-docs`
 
-# JPA/Hibernate
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+### Django Genomic Service
+- **Swagger UI**: `http://localhost:8000/api/docs/`
+- **ReDoc**: `http://localhost:8000/api/redoc/`
 
-# JWT
-jwt.secret=${JWT_SECRET:genosentinel-super-secret-key-change-in-production-minimum-256-bits}
-jwt.expiration=${JWT_EXPIRATION:86400000}
+##  Authentication
 
-# Logging
-logging.level.com.breaze.genosentinel=DEBUG
+The system uses JWT (JSON Web Tokens) for authentication:
+
+1. **Login**: `POST /genosentinel/auth/login`
+   ```json
+   {
+     "username": "your-username",
+     "password": "your-password"
+   }
+   ```
+
+2. **Response**:
+   ```json
+   {
+     "token": "eyJhbGciOiJIUzI1NiIs...",
+     "username": "your-username"
+   }
+   ```
+
+3. **Use Token**: Include in headers for all requests:
+   ```
+   Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+   ```
+
+## Database Schema
+
+### Genomic Service (Django)
+
+**Genes Table:**
+```sql
+CREATE TABLE genes (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    symbol VARCHAR(50) UNIQUE NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    function_summary TEXT NOT NULL,
+    created_at DATETIME,
+    updated_at DATETIME
+);
 ```
 
-### Security Notes
+**Genetic Variants Table:**
+```sql
+CREATE TABLE genetic_variants (
+    id UUID PRIMARY KEY,
+    gene_id BIGINT FOREIGN KEY REFERENCES genes(id),
+    chromosome VARCHAR(10) NOT NULL,
+    position BIGINT NOT NULL,
+    reference_base VARCHAR(500) NOT NULL,
+    alternate_base VARCHAR(500) NOT NULL,
+    impact VARCHAR(30) NOT NULL,
+    created_at DATETIME,
+    updated_at DATETIME
+);
+```
 
-⚠️ **IMPORTANT for Production:**
-1. Change `jwt.secret` to a strong, randomly generated key (minimum 256 bits)
-2. Use environment variables for sensitive data
-3. Enable HTTPS/TLS
-4. Set `spring.jpa.hibernate.ddl-auto=validate` (not `update`)
-5. Use strong database passwords
-6. Implement rate limiting
-7. Add request/response logging for audit
+**Patient Variant Reports Table:**
+```sql
+CREATE TABLE patient_variant_reports (
+    id UUID PRIMARY KEY,
+    patient_id VARCHAR(50) NOT NULL,
+    variant_id UUID FOREIGN KEY REFERENCES genetic_variants(id),
+    detection_date DATE NOT NULL,
+    allele_frequency DECIMAL(5,4) NOT NULL,
+    created_at DATETIME,
+    updated_at DATETIME
+);
+```
 
----
+##  Testing
 
-## Testing
+### Run Tests
 
-### Manual Testing with cURL
-
-#### Register:
+**Spring Boot:**
 ```bash
-curl -X POST http://localhost:3003/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "testuser",
-    "email": "test@example.com",
-    "password": "password123"
-  }'
+cd auth-gateway
+./mvnw test
 ```
 
-#### Login:
+**NestJS:**
 ```bash
-curl -X POST http://localhost:3003/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "testuser",
-    "password": "password123"
-  }'
+cd clinical-service
+npm run test
 ```
 
-#### Validate Token:
+**Django:**
 ```bash
-curl -X GET http://localhost:3003/auth/validate \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+cd genomic
+python manage.py test
 ```
 
-### PowerShell Testing
-```powershell
-# Register
-$body = @{username="testuser"; email="test@test.com"; password="pass123"} | ConvertTo-Json
-Invoke-RestMethod -Uri http://localhost:3003/auth/register -Method Post -ContentType "application/json" -Body $body
-
-# Login
-$body = @{username="testuser"; password="pass123"} | ConvertTo-Json
-$response = Invoke-RestMethod -Uri http://localhost:3003/auth/login -Method Post -ContentType "application/json" -Body $body
-$token = $response.accessToken
-
-# Validate
-$headers = @{Authorization = "Bearer $token"}
-Invoke-RestMethod -Uri http://localhost:3003/auth/validate -Method Get -Headers $headers
+**Angular:**
+```bash
+cd frontend
+ng test
 ```
-
-### Postman Collection
-
-Import this collection for easy testing:
-```json
-{
-  "info": {
-    "name": "GenoSentinel Auth Gateway",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "Health Check",
-      "request": {
-        "method": "GET",
-        "url": "http://localhost:3003/health"
-      }
-    },
-    {
-      "name": "Register",
-      "request": {
-        "method": "POST",
-        "url": "http://localhost:3003/auth/register",
-        "header": [{"key": "Content-Type", "value": "application/json"}],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
-        }
-      }
-    },
-    {
-      "name": "Login",
-      "request": {
-        "method": "POST",
-        "url": "http://localhost:3003/auth/login",
-        "header": [{"key": "Content-Type", "value": "application/json"}],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}"
-        }
-      }
-    },
-    {
-      "name": "Validate Token",
-      "request": {
-        "method": "GET",
-        "url": "http://localhost:3003/auth/validate",
-        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}]
-      }
-    }
-  ]
-}
-```
-
----
 
 ## Troubleshooting
 
-### Problem: Application won't start
+### Common Issues
 
-**Symptoms:**
-```
-Error starting ApplicationContext
-Could not open JPA EntityManager for transaction
-```
-
-**Solutions:**
-1. Check MySQL is running: `docker-compose ps`
-2. Verify database credentials in `application.properties`
-3. Check port 3308 is accessible: `telnet localhost 3308`
-4. Check MySQL logs: `docker-compose logs mysql`
-
----
-
-### Problem: Port 3003 already in use
-
-**Symptoms:**
-```
-Web server failed to start. Port 3003 was already in use.
-```
-
-**Solutions:**
-```powershell
-# Windows - Find and kill process
-netstat -ano | findstr :3003
-taskkill /PID <PID> /F
-
-# Or change port in application.properties
-server.port=3004
-```
-
----
-
-### Problem: JWT Token Invalid
-
-**Symptoms:**
-```
-401 Unauthorized - Invalid token
-```
-
-**Solutions:**
-1. Check token format: `Authorization: Bearer {token}` (note the space)
-2. Verify token hasn't expired (default: 24 hours)
-3. Ensure JWT secret is the same across restarts
-4. Check for extra spaces or line breaks in token
-5. Use `/auth/login` to get a fresh token
-
----
-
-### Problem: User Already Exists
-
-**Symptoms:**
-```
-409 Conflict - Username already exists
-```
-
-**Solutions:**
-1. Choose a different username
-2. Check database: `SELECT * FROM users WHERE username = 'yourname';`
-3. Delete test user if needed:
-```sql
-   DELETE FROM users WHERE username = 'testuser';
-```
-
----
-
-### Problem: BCrypt Password Mismatch
-
-**Symptoms:**
-```
-401 Unauthorized - Invalid credentials
-(but you're sure the password is correct)
-```
-
-**Solutions:**
-1. Password is case-sensitive - check caps lock
-2. Clear any trailing spaces in password
-3. Re-register the user if database was reset
-4. Check password encoding in UserDetailsService
-
----
-
-### Problem: CORS Error (from Frontend)
-
-**Symptoms:**
-```
-Access to fetch at 'http://localhost:3003/auth/login' 
-from origin 'http://localhost:4200' has been blocked by CORS policy
-```
-
-**Solutions:**
-1. Add your frontend URL to `SecurityConfig.corsConfigurationSource()`
-2. Ensure preflight OPTIONS requests are allowed
-3. Check `Access-Control-Allow-Origin` header in response
-4. Verify CORS configuration:
-```java
-   cfg.setAllowedOrigins(List.of("http://localhost:4200"));
-```
-
----
-
-### Problem: Database Connection Timeout
-
-**Symptoms:**
-```
-Communications link failure
-The last packet sent successfully to the server was 0 milliseconds ago
-```
-
-**Solutions:**
-1. Verify MySQL container is running: `docker ps`
-2. Check MySQL is ready: `docker-compose logs mysql | grep "ready for connections"`
-3. Wait 30 seconds after starting MySQL
-4. Test connection manually:
+**MySQL Connection Refused:**
 ```bash
-   docker exec -it genosentinel-db mysql -u genosentinel_user -pabcd1234
+# Check MySQL is running
+mysql -u root -p
+
+# Verify user permissions
+SHOW GRANTS FOR 'genosentinel_user'@'localhost';
 ```
 
----
-
-### Debugging Tips
-
-#### Enable Debug Logging
-```properties
-# application.properties
-logging.level.com.breaze.genosentinel=DEBUG
-logging.level.org.springframework.security=DEBUG
-logging.level.org.hibernate.SQL=DEBUG
-```
-
-#### Check Application Logs
-Look for these patterns:
-- ✅ `Started AuthGatewayApplication` - App started successfully
-- ✅ `Tomcat started on port(s): 3003` - Server listening
-- ❌ `Communications link failure` - Database connection issue
-- ❌ `Port 3003 was already in use` - Port conflict
-- ❌ `Access denied for user` - Wrong database credentials
-
-#### Database Health Check
+**Port Already in Use:**
 ```bash
-# Check if database exists
-docker exec -it genosentinel-db mysql -u genosentinel_user -pabcd1234 -e "SHOW DATABASES;"
+# Find process using port
+lsof -i :8080  # or :3000, :8000, :4200
 
-# Check if users table exists
-docker exec -it genosentinel-db mysql -u genosentinel_user -pabcd1234 -e "USE genosentinel; SHOW TABLES;"
-
-# Check user records
-docker exec -it genosentinel-db mysql -u genosentinel_user -pabcd1234 -e "USE genosentinel; SELECT * FROM users;"
+# Kill process
+kill -9 <PID>
 ```
 
----
+**Kubernetes Pod Not Starting:**
+```bash
+# Check pod logs
+kubectl logs <pod-name>
 
-## Project Structure
-```
-auth-gateway/
-├── src/
-│   ├── main/
-│   │   ├── java/com/breaze/genosentinel/authgateway/
-│   │   │   ├── config/
-│   │   │   │   ├── AuthConfig.java          # UserDetailsService configuration
-│   │   │   │   └── SecurityConfig.java      # Spring Security configuration
-│   │   │   ├── controller/
-│   │   │   │   ├── AuthController.java      # Login, Register, Validate endpoints
-│   │   │   │   └── HealthController.java    # Health check endpoint
-│   │   │   ├── dto/
-│   │   │   │   ├── AuthResponse.java        # Response with token
-│   │   │   │   ├── LoginRequest.java        # Login credentials
-│   │   │   │   └── RegisterRequest.java     # Registration data
-│   │   │   ├── entity/
-│   │   │   │   └── User.java                # User entity (JPA)
-│   │   │   ├── repository/
-│   │   │   │   └── UserRepository.java      # JPA repository
-│   │   │   ├── security/
-│   │   │   │   ├── JwtAuthFilter.java       # JWT validation filter
-│   │   │   │   └── JwtService.java          # JWT generation/parsing
-│   │   │   └── AuthGatewayApplication.java  # Main application class
-│   │   └── resources/
-│   │       └── application.properties       # Configuration
-│   └── test/                                # Unit tests (to be implemented)
-├── pom.xml                                  # Maven dependencies
-└── README.md                                # This file
+# Describe pod for events
+kubectl describe pod <pod-name>
+
+# Check if images are available
+docker images | grep -E 'auth-gateway|nestjs-clinical|django-genomic'
 ```
 
----
+**Django Migrations Error:**
+```bash
+# Reset migrations
+cd genomic
+python manage.py migrate --fake
+python manage.py migrate --run-syncdb
+```
 
-## Next Steps
+##  License
 
-1. ✅ **Auth Gateway Complete** - User authentication working
-2. 🔜 **Microservicio Clínica** (NestJS) - Patient & clinical records
-3. 🔜 **Microservicio Genómica** (Django) - Genetic variants
-4. 🔜 **Gateway Proxy** - Route requests to internal services
-5. 🔜 **Kubernetes Deployment** - Deploy all services
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
+## Authors
 
-## Contributing
+- **Santiago Duque Robledo** - *Initial work* - [MyGithub](https://github.com/SDuque28)
+- **Cesar David Arias Posada** - *Initial work* - [MyGithub](https://github.com/elcesar172006)
 
-This is an academic project for Universidad [Your University].
+## Acknowledgments
 
-**Team:**
-- Clinical Service (NestJS): [Teammate Name]
-- Genomics Service (Django): [Your Name]
-- Auth Gateway (Spring Boot): [Your Name]
-
----
-
-## License
-
-Academic project - Universidad [Your University] 2025
-
----
-
-## Support
-
-For issues or questions:
-1. Check [Troubleshooting](#troubleshooting) section
-2. Review application logs
-3. Test with Postman collection
-4. Contact team members
-
----
-
-**Last Updated:** November 11, 2025  
-**Version:** 1.0.0  
-**Status:** ✅ Functional
+- Spring Boot Framework
+- NestJS Framework
+- Django REST Framework
+- Angular Team
+- Kubernetes Community
