@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nestjs-mysql
+  name: django-mysql
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nestjs-mysql
+      app: django-mysql
   template:
     metadata:
       labels:
-        app: nestjs-mysql
+        app: django-mysql
     spec:
       containers:
         - name: mysql
@@ -19,13 +19,13 @@ spec:
             - containerPort: 3306
           envFrom:
             - secretRef:
-                name: nestjs-mysql-secret
+                name: django-mysql-secret
             - configMapRef:
-                name: nestjs-mysql-config
+                name: django-mysql-config
           volumeMounts:
             - name: mysql-storage
               mountPath: /var/lib/mysql
       volumes:
         - name: mysql-storage
           persistentVolumeClaim:
-            claimName: nestjs-mysql-pvc
+            claimName: django-mysql-pvc

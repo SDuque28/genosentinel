@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nestjs-config
+data:
+  PORT: "3000"
+  DATABASE_HOST: "nestjs-mysql"
+  DATABASE_PORT: "3306"
+  DATABASE_USER: "clinical_user"
+  DATABASE_NAME: "clinical_db"

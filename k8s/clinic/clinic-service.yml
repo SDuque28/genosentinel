@@ -1,12 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: clinic-service
+  name: nestjs-service
 spec:
   selector:
-    app: clinic-app
+    app: nestjs-app
   ports:
     - port: 3000
       targetPort: 3000
-      nodePort: 30001
-  type: NodePort
+  type: ClusterIP

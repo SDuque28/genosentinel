@@ -1,12 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: clinic-config
+  name: nestjs-mysql-config
 data:
-  MYSQL_DATABASE: "clinic_db"
-  MYSQL_USER: "clinic_user"
-  DB_HOST: "mysql-clinic"
-  DB_PORT: "3306"
-  DB_USERNAME: "clinic_user"
-  DB_DATABASE: "clinic_db"
-  NODE_ENV: "production"
+  MYSQL_DATABASE: "clinical_db"
+  MYSQL_USER: "clinical_user"

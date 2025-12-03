@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nestjs-deployment
+  name: django-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nestjs-app
+      app: django-app
   template:
     metadata:
       labels:
-        app: nestjs-app
+        app: django-app
     spec:
       containers:
-        - name: nestjs-container
-          image: clinic_img:1.0
+        - name: django-container
+          image: genomic_img:1.0
           imagePullPolicy: Never
           ports:
-            - containerPort: 3000
+            - containerPort: 8000
           envFrom:
             - configMapRef:
-                name: nestjs-config
+                name: django-config
             - secretRef:
-                name: nestjs-secret
+                name: django-secret
