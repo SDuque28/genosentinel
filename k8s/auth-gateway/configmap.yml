@@ -1,0 +1,11 @@
+apiVersion: v1 
+kind: ConfigMap
+metadata:
+  name: auth-config
+data:
+  MYSQL_DATABASE: "genosentinel"
+  MYSQL_USER: "genosentinel_user"
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/genosentinel"
+  SPRING_DATASOURCE_USERNAME: "genosentinel_user"
+  SPRINGDOC_SWAGGER_UI_PATH: "/swagger-ui.html"
+  SPRINGDOC_API_DOCS_PATH: "/v3/api-docs"

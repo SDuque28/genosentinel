@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-mysql-config
+data:
+  MYSQL_DATABASE: "genomic_db"
+  MYSQL_USER: "genomic_user"

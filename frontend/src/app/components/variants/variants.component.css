@@ -1,0 +1,67 @@
+.variants-container {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.form-card {
+  margin-bottom: 20px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+
+table {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.impact-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.impact-missense {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.impact-nonsense {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.impact-frameshift {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.impact-silent {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.impact-splice_site {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.impact-inframe_insertion,
+.impact-inframe_deletion {
+  background-color: #e2e3e5;
+  color: #383d41;
+}

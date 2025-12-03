@@ -1,2 +1,2 @@
-/auth-gateway
 /secrets
+/k8s/mysql-auth/secret.yaml 
